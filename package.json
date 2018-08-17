@@ -1,0 +1,24 @@
+{
+  "name": "hours-report",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "match-sorter": "^2.2.3",
+    "moment": "^2.22.2",
+    "prop-types": "^15.6.2",
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2",
+    "react-redux": "^5.0.7",
+    "react-scripts": "1.1.4",
+    "react-table": "^6.8.6",
+    "redux": "^4.0.0",
+    "uuid": "^3.3.2",
+    "validator": "^10.6.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}
