@@ -56,6 +56,7 @@ class ConnectedTable extends Component {
 
 		return (
 			<ReactTable
+				className="-highlight"
 				data={data}
 				columns={columns}
 				resolveData={data => data.map(row => row)}
@@ -63,8 +64,7 @@ class ConnectedTable extends Component {
 				defaultPageSize={5}
 				filterable
 				defaultFilterMethod={
-					(filter, row) =>
-						String(row[filter.id]) === filter.value
+					(filter, row) => String(row[filter.id]) === filter.value
 				} />
 		);
 	}
