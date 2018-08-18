@@ -7,8 +7,6 @@ const reportReducer = (state = [], action) => {
 	switch(action.type) {
 		case ADD_REPORT:
 			return [...state, action.payload];
-		case REMOVE_REPORT:
-			return state.filter(rec => rec.id !== action.payload.id);
 		default:
 			return state;
 	}
