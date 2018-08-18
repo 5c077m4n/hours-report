@@ -12,17 +12,12 @@ import moment from 'moment';
 class ConnectedTable extends Component {
 	constructor(props) {
 		super(props);
-		this.handleMonthChange = this.handleMonthChange.bind(this);
-		this.handleYearChange = this.handleYearChange.bind(this);
+		this.handleChange = this.handleChange.bind(this);
 		this.state = {
 			reports: this.props.reports,
-			month: (this.props.month)? this.props.month : (moment().month() + 1),
-			year: (this.props.year)? this.props.year : moment().year()
+			month: (this.props.month)? this.props.month : 0,
+			year: (this.props.year)? this.props.year : 0
 		};
-	}
-	componentDidMount() {
-		if(window.localStorage.hasOwnProperty('state'))
-			this.setState(JSON.parse(window.localStorage.getItem('state')));
 	}
 
 	analyseReports() {
@@ -71,19 +66,10 @@ class ConnectedTable extends Component {
 		});
 	}
 
-	handleMonthChange(e) {
-		this.setState({
-			reports: this.state.reports,
-			month: parseInt(e.target.value, 10),
-			year: this.state.year
-		});
-	}
-	handleYearChange(e) {
-		this.setState({
-			reports: this.state.reports,
-			month: this.state.month,
-			year: parseInt(e.target.value, 10)
-		});
+	handleChange(e) {
+		e.persist();
+		e.preventDefault();
+		this.setState({ [e.target.name]: parseInt(e.target.value,  10) });
 	}
 
 	render() {
@@ -116,15 +102,19 @@ class ConnectedTable extends Component {
 			<div>
 				<InputGroup className="form-group">
 					<InputGroupAddon addonType="prepend">Select the month:</InputGroupAddon>
-					<Input type="select" value={this.state.month} onChange={this.handleMonthChange}>
-						<option defaultValue value={0}>All Months</option>
+					<Input
+						type="select" value={this.state.month}
+						name="month" onChange={this.handleChange}>
+						<option key={uuidv1()} defaultValue value={0}>All Months</option>
 						{monthList}
 					</Input>
 				</InputGroup>
 				<InputGroup className="form-group">
 					<InputGroupAddon addonType="prepend">Select the year:</InputGroupAddon>
-					<Input type="select" value={this.state.year} onChange={this.handleYearChange}>
-						<option defaultValue value={0}>All Years</option>
+					<Input
+						type="select" value={this.state.year}
+						name="year" onChange={this.handleChange}>
+						<option key={uuidv1()} defaultValue value={0}>All Years</option>
 						{yearList}
 					</Input>
 				</InputGroup>
@@ -143,10 +133,6 @@ class ConnectedTable extends Component {
 				/>
 			</div>
 		);
-	}
-
-	componentWillUnmount() {
-		window.localStorage.setItem('state', JSON.stringify(this.state));
 	}
 }
 ConnectedTable.propTypes = { reports: PropTypes.array.isRequired };
