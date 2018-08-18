@@ -97,13 +97,14 @@ class ConnectedTable extends Component {
 		const yearList = Array(7).fill().map((year, i) =>
 			(<option key={uuidv1()} value={currentYear - i}>{currentYear - i}</option>)
 		);
+		const { month, year } = this.state;
 
 		return (
 			<div>
 				<InputGroup className="form-group">
 					<InputGroupAddon addonType="prepend">Select the month:</InputGroupAddon>
 					<Input
-						type="select" value={this.state.month}
+						type="select" value={month}
 						name="month" onChange={this.handleChange}>
 						<option key={uuidv1()} defaultValue value={0}>All Months</option>
 						{monthList}
@@ -112,7 +113,7 @@ class ConnectedTable extends Component {
 				<InputGroup className="form-group">
 					<InputGroupAddon addonType="prepend">Select the year:</InputGroupAddon>
 					<Input
-						type="select" value={this.state.year}
+						type="select" value={year}
 						name="year" onChange={this.handleChange}>
 						<option key={uuidv1()} defaultValue value={0}>All Years</option>
 						{yearList}
