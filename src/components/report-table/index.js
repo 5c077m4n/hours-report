@@ -25,14 +25,24 @@ class ConnectedTable extends Component {
 			this.setState(JSON.parse(window.localStorage.getItem('state')));
 	}
 
-
 	analyseReports() {
 		const users = this.props.reports.reduce((users, rep) => {
-			if(
-				(
+			if((
+					this.state.month && this.state.year &&
 					((moment(rep.date).month() + 1) === this.state.month) &&
 					(moment(rep.date).year() === this.state.year)
-				) || !this.state.month || !this.state.year
+				)
+				|| (
+					this.state.month && !this.state.year &&
+					((moment(rep.date).month() + 1) === this.state.month)
+				)
+				|| (
+					!this.state.month && this.state.year &&
+					(moment(rep.date).year() === this.state.year)
+				)
+				|| (
+					!this.state.month && !this.state.year
+				)
 			) {
 				if(rep.username in users) {
 					users[rep.username].totalHours += (rep.end - rep.start);
@@ -107,14 +117,14 @@ class ConnectedTable extends Component {
 				<InputGroup className="form-group">
 					<InputGroupAddon addonType="prepend">Select the month:</InputGroupAddon>
 					<Input type="select" value={this.state.month} onChange={this.handleMonthChange}>
-						<option defaultValue value={0}>All Records</option>
+						<option defaultValue value={0}>All Months</option>
 						{monthList}
 					</Input>
 				</InputGroup>
 				<InputGroup className="form-group">
 					<InputGroupAddon addonType="prepend">Select the year:</InputGroupAddon>
 					<Input type="select" value={this.state.year} onChange={this.handleYearChange}>
-						<option defaultValue value={0}>All Records</option>
+						<option defaultValue value={0}>All Years</option>
 						{yearList}
 					</Input>
 				</InputGroup>
