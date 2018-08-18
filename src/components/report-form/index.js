@@ -12,7 +12,9 @@ import './index.css';
 class ConnectedForm extends Component {
 	constructor(props) {
 		super(props);
-		this.state = { date: '', username: '', start: '', end: '' };
+		this.state = {
+			date: moment().format('YYYY-MM-DD'), username: '', start: '', end: ''
+		};
 		this.handleChange = this.handleChange.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
 	}
@@ -27,6 +29,8 @@ class ConnectedForm extends Component {
 	}
 
 	handleChange(e) {
+		e.persist();
+		e.preventDefault();
 		this.setState({ [e.target.name]: e.target.value });
 	}
 
@@ -48,7 +52,9 @@ class ConnectedForm extends Component {
 				start,
 				end
 			});
-			this.setState({ date: '', username: '', start: '', end: '' });
+			this.setState({
+				date: moment().format('YYYY-MM-DD'), username: '', start: '', end: ''
+			});
 		}
 	}
 
@@ -59,7 +65,7 @@ class ConnectedForm extends Component {
 				<InputGroup className="form-group">
 					<InputGroupAddon addonType="prepend">Date:</InputGroupAddon>
 					<Input
-						invalid={!!date.length && date.length !== 10}
+						invalid={!validator.isISO8601(date)}
 						type="date" name="date" value={date}
 						onChange={this.handleChange}
 					/>
