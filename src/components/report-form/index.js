@@ -83,8 +83,14 @@ class ConnectedForm extends Component {
 				<InputGroup className="form-group">
 					<InputGroupAddon addonType="prepend">Starting Hour:</InputGroupAddon>
 					<Input
-						invalid={!!start.length &&  !(0 < parseInt(start, 10) < 25)}
-						type="number" name="start" value={start}
+						invalid={
+							!!start.length && !(
+								validator.isNumeric(start) &&
+								0 <= parseInt(start, 10) &&
+								parseInt(start, 10) < 24
+							)
+						}
+						type="text" name="start" value={start}
 						onChange={this.handleChange} min="0" max="23"
 					/>
 					<FormFeedback>Invalid Starting Hour</FormFeedback>
@@ -99,7 +105,7 @@ class ConnectedForm extends Component {
 								parseInt(end, 10) < 25
 							)
 						}
-						type="number" name="end" value={end}
+						type="text" name="end" value={end}
 						onChange={this.handleChange} min="1" max="24"
 					/>
 					<FormFeedback>
