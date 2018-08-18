@@ -1,10 +1,10 @@
-import React, { Component } from "react";
-import { connect } from "react-redux";
-import PropTypes from "prop-types";
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import uuidv1 from 'uuid';
-import ReactTable from "react-table";
+import ReactTable from 'react-table';
+import matchSorter from 'match-sorter';
 import 'react-table/react-table.css';
-import matchSorter from 'match-sorter'
 
 
 class ConnectedTable extends Component {
@@ -14,7 +14,7 @@ class ConnectedTable extends Component {
 	}
 
 	reportsAnalyser() {
-		return this.state.reports.reduce((users, rep) => {
+		const users = this.state.reports.reduce((users, rep) => {
 			if(rep.username in users) {
 				users[rep.username].totalHours += (rep.end - rep.start);
 				users[rep.username].extraHours += ((rep.end - rep.start) > 8)?
@@ -32,14 +32,15 @@ class ConnectedTable extends Component {
 			}
 			return users;
 		}, {});
+		return Object.keys(users).map(user => {
+			users[user].avgHoursPerDay =
+				users[user].totalHours / users[user].workDays;
+			return users[user];
+		});
 	}
 
 	render() {
-		const users = this.reportsAnalyser();
-		const data = Object.keys(users).map(user => {
-			users[user].avgHoursPerDay = users[user].totalHours / users[user].workDays;
-			return users[user];
-		});
+		const data = this.reportsAnalyser();
 		const columns = [
 			{
 				Header: 'Username',
@@ -51,7 +52,10 @@ class ConnectedTable extends Component {
 			},
 			{ Header: 'Average hours per day', accessor: 'avgHoursPerDay' },
 			{ Header: 'Total hours', accessor: 'totalHours' },
-			{ Header: 'Total extra hours (over 8 hours in one day)', accessor: 'extraHours' }
+			{
+				Header: 'Total extra hours (over 8 hours in one day)',
+				accessor: 'extraHours'
+			}
 		];
 
 		return (
@@ -65,7 +69,8 @@ class ConnectedTable extends Component {
 				filterable
 				defaultFilterMethod={
 					(filter, row) => String(row[filter.id]) === filter.value
-				} />
+				}
+			/>
 		);
 	}
 }

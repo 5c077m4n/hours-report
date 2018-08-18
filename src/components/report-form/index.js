@@ -3,8 +3,10 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import moment from 'moment';
 import validator from 'validator';
+import { InputGroup, InputGroupAddon, Input, Button, Alert } from 'reactstrap';
 
 import { addReport } from "../../redux/actions";
+import './index.css';
 
 
 class ConnectedForm extends Component {
@@ -33,8 +35,7 @@ class ConnectedForm extends Component {
 		if(
 			validator.isNumeric(start) &&
 			validator.isNumeric(end) &&
-			(start < end) &&
-			(start > 0) &&
+			(0 < parseInt(start, 10) < parseInt(end, 10) < 25) &&
 			validator.isEmail(username)
 		) {
 			this.props.addReport({
@@ -50,32 +51,38 @@ class ConnectedForm extends Component {
 	render() {
 		const { date, username, start, end } = this.state;
 		return (
-			<form onSubmit={this.handleSubmit}>
-				<div className="form-group">
-					<label htmlFor="date">Date</label>
-					<input
-						type="date" className="form-control"
-						id="date" name="date" value={date}
-						onChange={this.handleChange} />
-					<label htmlFor="username">E-Mail</label>
-					<input
-						type="email" className="form-control"
-						id="username" name="username" value={username}
-						onChange={this.handleChange} />
-					<label htmlFor="start">Starting Hour</label>
-					<input
-						type="number" className="form-control"
-						id="start" name="start" value={start}
-						onChange={this.handleChange} />
-					<label htmlFor="end">Ending Hour</label>
-					<input
-						type="number" className="form-control"
-						id="end" name="end" value={end}
-						onChange={this.handleChange} />
-				</div>
-				<button type="submit" className="btn btn-success btn-lg">
+			<form onSubmit={this.handleSubmit} className="form-grid">
+				<InputGroup className="form-group">
+					<InputGroupAddon addonType="prepend">Date:</InputGroupAddon>
+					<Input
+						type="date" name="date" value={date}
+						onChange={this.handleChange}
+					/>
+				</InputGroup>
+				<InputGroup className="form-group">
+					<InputGroupAddon addonType="prepend">E-Mail:</InputGroupAddon>
+					<Input
+						type="email" name="username" value={username}
+						onChange={this.handleChange}
+					/>
+				</InputGroup>
+				<InputGroup className="form-group">
+					<InputGroupAddon addonType="prepend">Starting Hour:</InputGroupAddon>
+					<Input
+						type="number" name="start" value={start}
+						onChange={this.handleChange} min="0" max="24"
+					/>
+				</InputGroup>
+				<InputGroup className="form-group">
+					<InputGroupAddon addonType="prepend">Ending Hour:</InputGroupAddon>
+					<Input className="input-field"
+						type="number" name="end" value={end}
+						onChange={this.handleChange} min="0" max="24"
+					/>
+				</InputGroup>
+				<Button type="submit" color="primary" block>
 					SAVE
-				</button>
+				</Button>
 			</form>
 		);
 	}
