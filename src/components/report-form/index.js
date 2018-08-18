@@ -66,7 +66,7 @@ class ConnectedForm extends Component {
 					<FormFeedback>Invalid Date</FormFeedback>
 				</InputGroup>
 				<InputGroup className="form-group">
-					<InputGroupAddon addonType="prepend">E-Mail:</InputGroupAddon>
+					<InputGroupAddon addonType="prepend">Username:</InputGroupAddon>
 					<Input
 						invalid={!!username.length && !validator.isEmail(username)}
 						type="email" name="username" value={username}
