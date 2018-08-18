@@ -16,11 +16,15 @@ class ConnectedTable extends Component {
 		this.handleYearChange = this.handleYearChange.bind(this);
 		this.state = {
 			reports: this.props.reports,
-			month: this.props.month,
-			year: this.props.year,
+			month: (this.props.month)? this.props.month : (moment().month() + 1),
+			year: (this.props.year)? this.props.year : moment().year()
 		};
-		this.state.data =  this.analyseReports();
 	}
+	componentDidMount() {
+		if(window.localStorage.hasOwnProperty('state'))
+			this.setState(JSON.parse(window.localStorage.getItem('state')));
+	}
+
 
 	analyseReports() {
 		const users = this.props.reports.reduce((users, rep) => {
@@ -28,12 +32,13 @@ class ConnectedTable extends Component {
 				(
 					((moment(rep.date).month() + 1) === this.state.month) &&
 					(moment(rep.date).year() === this.state.year)
-				) || (!this.state.month || !this.state.year)
+				) || !this.state.month || !this.state.year
 			) {
 				if(rep.username in users) {
 					users[rep.username].totalHours += (rep.end - rep.start);
-					users[rep.username].extraHours += ((rep.end - rep.start) > 8)?
-						(rep.end - rep.start - 8) : 0;
+					users[rep.username].extraHours +=
+						((rep.end - rep.start) > 8)?
+							(rep.end - rep.start - 8) : 0;
 					users[rep.username].workDays++;
 				}
 				else {
@@ -41,8 +46,9 @@ class ConnectedTable extends Component {
 					users[rep.username].id = uuidv1();
 					users[rep.username].username = rep.username;
 					users[rep.username].totalHours = (rep.end - rep.start);
-					users[rep.username].extraHours = ((rep.end - rep.start) > 8)?
-						(rep.end - rep.start - 8) : 0;
+					users[rep.username].extraHours =
+						((rep.end - rep.start) > 8)?
+							(rep.end - rep.start - 8) : 0;
 					users[rep.username].workDays = 1;
 				}
 			}
@@ -71,6 +77,7 @@ class ConnectedTable extends Component {
 	}
 
 	render() {
+		const data = this.analyseReports();
 		const columns = [
 			{
 				Header: 'Username',
@@ -89,10 +96,10 @@ class ConnectedTable extends Component {
 		];
 		const currentYear = moment().year();
 		const monthList = Array(12).fill().map((month, i) =>
-			(<option key={uuidv1()} value={i+1}>{i+1}</option>)
+			(<option key={uuidv1()} value={i + 1}>{i + 1}</option>)
 		);
 		const yearList = Array(7).fill().map((year, i) =>
-			(<option key={uuidv1()} value={currentYear-i}>{currentYear-i}</option>)
+			(<option key={uuidv1()} value={currentYear - i}>{currentYear - i}</option>)
 		);
 
 		return (
@@ -100,21 +107,21 @@ class ConnectedTable extends Component {
 				<InputGroup className="form-group">
 					<InputGroupAddon addonType="prepend">Select the month:</InputGroupAddon>
 					<Input type="select" value={this.state.month} onChange={this.handleMonthChange}>
-						<option defaultValue value={undefined}>---</option>
+						<option defaultValue value={0}>All Records</option>
 						{monthList}
 					</Input>
 				</InputGroup>
 				<InputGroup className="form-group">
 					<InputGroupAddon addonType="prepend">Select the year:</InputGroupAddon>
 					<Input type="select" value={this.state.year} onChange={this.handleYearChange}>
-						<option defaultValue value={undefined}>---</option>
+						<option defaultValue value={0}>All Records</option>
 						{yearList}
 					</Input>
 				</InputGroup>
 
 				<ReactTable
 					className="-highlight"
-					data={this.state.data}
+					data={data}
 					columns={columns}
 					resolveData={data => data.map(row => row)}
 					showPageJump={false}
@@ -126,6 +133,10 @@ class ConnectedTable extends Component {
 				/>
 			</div>
 		);
+	}
+
+	componentWillUnmount() {
+		window.localStorage.setItem('state', JSON.stringify(this.state));
 	}
 }
 ConnectedTable.propTypes = { reports: PropTypes.array.isRequired };
