@@ -3,32 +3,48 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import uuidv1 from 'uuid';
 import ReactTable from 'react-table';
+import { InputGroup, Input, InputGroupAddon } from 'reactstrap';
 import matchSorter from 'match-sorter';
 import 'react-table/react-table.css';
+import moment from 'moment';
 
 
 class ConnectedTable extends Component {
 	constructor(props) {
 		super(props);
-		this.state = { reports: this.props.reports };
+		this.handleMonthChange = this.handleMonthChange.bind(this);
+		this.handleYearChange = this.handleYearChange.bind(this);
+		this.state = {
+			reports: this.props.reports,
+			month: this.props.month,
+			year: this.props.year,
+		};
+		this.state.data =  this.analyseReports();
 	}
 
-	reportsAnalyser() {
-		const users = this.state.reports.reduce((users, rep) => {
-			if(rep.username in users) {
-				users[rep.username].totalHours += (rep.end - rep.start);
-				users[rep.username].extraHours += ((rep.end - rep.start) > 8)?
-					(rep.end - rep.start - 8) : 0;
-				users[rep.username].workDays++;
-			}
-			else {
-				users[rep.username] = {};
-				users[rep.username].id = uuidv1();
-				users[rep.username].username = rep.username;
-				users[rep.username].totalHours = (rep.end - rep.start);
-				users[rep.username].extraHours = ((rep.end - rep.start) > 8)?
-					(rep.end - rep.start - 8) : 0;
-				users[rep.username].workDays = 1;
+	analyseReports() {
+		const users = this.props.reports.reduce((users, rep) => {
+			if(
+				(
+					((moment(rep.date).month() + 1) === this.state.month) &&
+					(moment(rep.date).year() === this.state.year)
+				) || (!this.state.month || !this.state.year)
+			) {
+				if(rep.username in users) {
+					users[rep.username].totalHours += (rep.end - rep.start);
+					users[rep.username].extraHours += ((rep.end - rep.start) > 8)?
+						(rep.end - rep.start - 8) : 0;
+					users[rep.username].workDays++;
+				}
+				else {
+					users[rep.username] = {};
+					users[rep.username].id = uuidv1();
+					users[rep.username].username = rep.username;
+					users[rep.username].totalHours = (rep.end - rep.start);
+					users[rep.username].extraHours = ((rep.end - rep.start) > 8)?
+						(rep.end - rep.start - 8) : 0;
+					users[rep.username].workDays = 1;
+				}
 			}
 			return users;
 		}, {});
@@ -39,8 +55,22 @@ class ConnectedTable extends Component {
 		});
 	}
 
+	handleMonthChange(e) {
+		this.setState({
+			reports: this.state.reports,
+			month: parseInt(e.target.value, 10),
+			year: this.state.year
+		});
+	}
+	handleYearChange(e) {
+		this.setState({
+			reports: this.state.reports,
+			month: this.state.month,
+			year: parseInt(e.target.value, 10)
+		});
+	}
+
 	render() {
-		const data = this.reportsAnalyser();
 		const columns = [
 			{
 				Header: 'Username',
@@ -57,25 +87,53 @@ class ConnectedTable extends Component {
 				accessor: 'extraHours'
 			}
 		];
+		const currentYear = moment().year();
+		const monthList = Array(12).fill().map((month, i) =>
+			(<option key={uuidv1()} value={i+1}>{i+1}</option>)
+		);
+		const yearList = Array(7).fill().map((year, i) =>
+			(<option key={uuidv1()} value={currentYear-i}>{currentYear-i}</option>)
+		);
 
 		return (
-			<ReactTable
-				className="-highlight"
-				data={data}
-				columns={columns}
-				resolveData={data => data.map(row => row)}
-				showPageJump={false}
-				defaultPageSize={5}
-				filterable
-				defaultFilterMethod={
-					(filter, row) => String(row[filter.id]) === filter.value
-				}
-			/>
+			<div>
+				<InputGroup className="form-group">
+					<InputGroupAddon addonType="prepend">Select the month:</InputGroupAddon>
+					<Input type="select" value={this.state.month} onChange={this.handleMonthChange}>
+						<option defaultValue value={undefined}>---</option>
+						{monthList}
+					</Input>
+				</InputGroup>
+				<InputGroup className="form-group">
+					<InputGroupAddon addonType="prepend">Select the year:</InputGroupAddon>
+					<Input type="select" value={this.state.year} onChange={this.handleYearChange}>
+						<option defaultValue value={undefined}>---</option>
+						{yearList}
+					</Input>
+				</InputGroup>
+
+				<ReactTable
+					className="-highlight"
+					data={this.state.data}
+					columns={columns}
+					resolveData={data => data.map(row => row)}
+					showPageJump={false}
+					defaultPageSize={5}
+					filterable
+					defaultFilterMethod={
+						(filter, row) => String(row[filter.id]) === filter.value
+					}
+				/>
+			</div>
 		);
 	}
 }
 ConnectedTable.propTypes = { reports: PropTypes.array.isRequired };
 
-const mapStateToProps = state => ({ reports: state.reports });
+const mapStateToProps = state => ({
+	reports: state.reports,
+	month: state.month,
+	year: state.year
+});
 const Table = connect(mapStateToProps)(ConnectedTable);
 export default Table;
